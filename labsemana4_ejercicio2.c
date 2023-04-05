@@ -10,7 +10,7 @@ typedef struct {
 } Patient;
 
 void addPatient(Patient arr[], int *max){
-    if (max < *NumPatients && )
+    if (max < *NumPatients && a )
         printf("-----Paciente %d------\n",max+1);
         printf("Introduce el nombre del paciente %d: ",max+1);
         scanf("%s",&(arr[max].name));
