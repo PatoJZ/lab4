@@ -1,0 +1,1 @@
+freePatients(&listaPacientes);
