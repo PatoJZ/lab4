@@ -7,7 +7,7 @@ typedef struct Patient{
     char name[50];
     int age;
     int room;
-    float temperature[3];
+    float temperature;
     struct Patient* next;
 } Patient;
 
@@ -21,17 +21,13 @@ typedef struct {
     Nodo* last;
 } Cola;
 
-
-void addPatient(Patient** head) {
-    Patient* p = malloc(sizeof(Patient));
-    printf("Introduce el nombre del paciente: ");
-    scanf("%s", p->name);
-    printf("Introduce la edad del paciente: ");
-    scanf("%d", &p->age);
-    printf("Introduce la habitacion del paciente: ");
-    scanf("%d", &p->room);
-    p -> next = *head;
-    *head = p;
+void addPatient(Patient** head, char *name, int age, int room) {
+    Patient* newPatient = malloc(sizeof(Patient));
+    strcpy(newPatient->name, name);
+    newPatient->age = age;
+    newPatient->room = room;
+    newPatient -> next = *head;
+    *head = newPatient;
 }
 void printPatient(Patient* head){
     Patient* current = head;
@@ -128,47 +124,68 @@ void dequeue(Cola* cola) {
         printf("Se elimino al paciente en el head de la cola.\n");
     }
 }
-int main(){
+int main(int argc, char *argv[]){
     Patient* listaPacientes = NULL;
     Cola colapacientes = {.head = NULL, .last = NULL};
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <file_name>\n", argv[0]);
+        return 1;
+    }
+    char *file_name = argv[1];
+    FILE *file = fopen(file_name, "r");
+    if (file == NULL) {
+        fprintf(stderr, "Error: Could not open file %s\n", file_name);
+        return 1;
+    }
+    char line[100];
+    while (fgets(line, 100, file) != NULL) {
+        char *token;
+       
+        token = strtok(line, ",");
+        char name[50];
+        strcpy(name, token);
+        
+        int age = atoi(strtok(NULL, ","));
+        int room = atoi(strtok(NULL, ","));
+        float temperature = atof(strtok(NULL, ","));
+        printf("%s, age:%d T°:%.1f ROOM:%d\n",name,age,temperature,room);
+        addPatient(&listaPacientes, name, age, room);
+        enqueuePatient(&colapacientes, listaPacientes);
+    }
+    fclose(file);
     int opcion = 0;
     while (opcion != 5) {
         printf("----------------------------------------\n");
         printf("\nMenu:\n");
-        printf("1. Agregar paciente y ponerlo a la cola\n");
-        printf("2. Imprimir la lista de pacientes\n");
-        printf("3. Dar de alta un paciente\n");
-        printf("4. Sacar de la cola de la lista de pacientes\n");
-        printf("5. Saber el siguiente en la lista de pacientes\n");
-        printf("6. Saber Cuantos pacientes hay en cola\n");
-        printf("7. Cuantos pacientes faltan para atenderse\n");
-        printf("8. Salir\n");
+        printf("1. Imprimir la lista de pacientes\n");
+        printf("2. Dar de alta un paciente\n");
+        printf("3. Sacar de la cola de la lista de pacientes\n");
+        printf("4. Saber el siguiente en la lista de pacientes\n");
+        printf("5. Saber Cuantos pacientes hay en cola\n");
+        printf("6. Cuantos pacientes faltan para atenderse\n");
+        printf("7. Salir\n");
         printf("Ingrese una opcion: ");
         scanf("%d", &opcion);
         switch (opcion) {
             case 1:
-                addPatient(&listaPacientes);
-                enqueuePatient(&colapacientes, listaPacientes);
-                break;
-            case 2:
                 printPatient(listaPacientes);
                 break;
-            case 3:
+            case 2:
                 dischargePatient(&listaPacientes);
                 break;
-            case 4:
+            case 3:
                 dequeue(&colapacientes);
                 break;
-            case 5:
+            case 4:
                 getNextPatient(&colapacientes);
                 break;
-            case 6:
+            case 5:
                 getQueueSize(&colapacientes);
                 break;
-            case 7:
+            case 6:
                 getLeftPatients(&colapacientes);
                 break;
-            case 8:
+            case 7:
                 freePatients(&listaPacientes);
                 printf("Saliendo del programa...\n");
                 break;
